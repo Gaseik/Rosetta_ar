@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+    <title>Rosetta AR</title>
+    <style>
+      html,
+      body {
+        margin: 0;
+        height: 100%;
+        overflow: hidden;
+        background: #000;
+        font-family: system-ui, -apple-system, sans-serif;
+      }
+      #ar-container {
+        position: fixed;
+        inset: 0;
+      }
+      #ui {
+        position: fixed;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 10;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
+        padding: 16px 16px calc(12px + env(safe-area-inset-bottom));
+        pointer-events: none;
+      }
+      #toggle {
+        pointer-events: auto;
+        min-width: 120px;
+        padding: 12px 28px;
+        border: 0;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.9);
+        color: #222;
+        font-size: 17px;
+        font-weight: 600;
+        cursor: pointer;
+      }
+      #toggle[hidden] {
+        display: none;
+      }
+
+      /* 自己做的掃描提示（取代 MindAR 內建 UI） */
+      #scan {
+        position: fixed;
+        inset: 0;
+        z-index: 5;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 20px;
+        pointer-events: none;
+        transition: opacity 0.4s ease;
+      }
+      #scan.is-hidden {
+        opacity: 0;
+      }
+      .frame {
+        position: relative;
+        height: min(56vh, 120vw);
+        aspect-ratio: 1078 / 1600;
+        overflow: hidden;
+      }
+      .corner {
+        position: absolute;
+        width: 28px;
+        height: 28px;
+        border: 0 solid rgba(255, 214, 140, 0.95);
+      }
+      .corner.tl { top: 0; left: 0; border-top-width: 3px; border-left-width: 3px; border-top-left-radius: 6px; }
+      .corner.tr { top: 0; right: 0; border-top-width: 3px; border-right-width: 3px; border-top-right-radius: 6px; }
+      .corner.bl { bottom: 0; left: 0; border-bottom-width: 3px; border-left-width: 3px; border-bottom-left-radius: 6px; }
+      .corner.br { bottom: 0; right: 0; border-bottom-width: 3px; border-right-width: 3px; border-bottom-right-radius: 6px; }
+      .sweep {
+        position: absolute;
+        left: 8%;
+        right: 8%;
+        height: 2px;
+        background: linear-gradient(90deg, transparent, rgba(255, 214, 140, 0.9), transparent);
+        box-shadow: 0 0 12px rgba(255, 196, 90, 0.8);
+        animation: sweep 2.4s ease-in-out infinite;
+      }
+      @keyframes sweep {
+        0%, 100% { top: 6%; opacity: 0; }
+        15%, 85% { opacity: 1; }
+        50% { top: 94%; }
+      }
+      #scan-text {
+        margin: 0;
+        padding: 0 16px;
+        color: #fff;
+        font-size: 15px;
+        text-align: center;
+        text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9);
+      }
+      #scan.is-loading .frame {
+        display: none;
+      }
+      #scan.is-error #scan-text {
+        color: #ffb4a8;
+      }
+      #scan.is-error .frame {
+        display: none;
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .sweep { animation: none; top: 50%; }
+      }
+
+      #credit {
+        margin: 0;
+        color: rgba(255, 255, 255, 0.75);
+        font-size: 11px;
+        text-align: center;
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+      }
+    </style>
+  </head>
+  <body>
+    <div id="ar-container"></div>
+    <div id="scan" class="is-loading is-hidden" aria-live="polite">
+      <div class="frame">
+        <span class="corner tl"></span>
+        <span class="corner tr"></span>
+        <span class="corner bl"></span>
+        <span class="corner br"></span>
+        <div class="sweep"></div>
+      </div>
+      <p id="scan-text"></p>
+    </div>
+    <div id="ui">
+      <button id="toggle" type="button" hidden>Show damage</button>
+      <p id="credit">"The Rosetta Stone" by The British Museum, CC BY-NC-SA 4.0</p>
+    </div>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
