@@ -1,135 +1,141 @@
 # Rosetta AR
 
-## 試玩
+Point your phone at the Rosetta Stone (a photo of it, or the real stone in the British Museum) and AR grows the missing parts back. The restored pieces rise from the fracture line up to the stele's estimated original height (about 149 cm), with a reconstructed inscription and a winged sun disc in the rounded top.
 
-1. 手機打開 **https://gaseik.github.io/Rosetta_ar/** ，允許相機權限。
-2. 在電腦螢幕上全螢幕打開這張圖（螢幕亮度調高）：
+## Try it
+
+1. On your phone, open **https://gaseik.github.io/Rosetta_ar/** and allow camera access.
+2. On a computer screen, open this image full screen (turn the brightness up):
    **https://gaseik.github.io/Rosetta_ar/stele-target.png**
-3. 手機對準螢幕上的石碑，缺掉的部分就會從斷口長回來。
+3. Point your phone at the stone on the screen. The missing parts grow back from the fracture.
 
-不開相機也能看：**https://gaseik.github.io/Rosetta_ar/?debug=1** （可以拖曳旋轉）。
+Without a camera: **https://gaseik.github.io/Rosetta_ar/?debug=1** (drag to rotate).
 
-在大英博物館現場也可以直接對準實物試試：程式裡有 7 張現場照片做的 target，但現場的光線和反光每天不同，不保證每次都抓得到。
+You can also try it on the real stone at the British Museum. Seven of the targets are museum photos, but lighting and glass reflections vary from day to day, so detection isn't guaranteed.
 
-手機對準羅塞塔石碑（照片或大英博物館的實物），用 AR 把石碑缺掉的部分補回來：補件會從斷口往上長出來，一路補到推測的完整高度（約 149 cm），上面刻著推測的銘文和圓頂的有翼日輪。
+## Tech
 
-- Vite + 純 JavaScript
-- [three.js](https://threejs.org/) 0.161.0 + [MindAR](https://github.com/hiukim/mind-ar-js) 1.2.5（image tracking）
+- Vite + plain JavaScript
+- [three.js](https://threejs.org/) 0.161.0 + [MindAR](https://github.com/hiukim/mind-ar-js) 1.2.5 (image tracking)
 
-## 怎麼跑
+## Running locally
 
-需要 Node.js 18 以上。
+Requires Node.js 18 or later.
 
 ```bash
 npm install
 npm run dev
 ```
 
-開 `https://localhost:5173/`。dev server 用的是自簽憑證（手機瀏覽器只有在 https 下才允許開相機），瀏覽器跳出警告時選「繼續前往」。
+Open `https://localhost:5173/`. The dev server uses a self-signed certificate, because mobile browsers only allow camera access over https. Click through the browser warning.
 
 ```bash
-npm run build     # 輸出到 dist/
-npm run preview   # 預覽 build 結果
+npm run build     # outputs to dist/
+npm run preview   # serves the build
 ```
 
-### Debug 模式（不開相機）
+### Debug mode (no camera)
 
-開 `https://localhost:5173/?debug=1`：一般的 three.js 場景，灰色的是掃描模型，米色的是補件。滑鼠可以拖曳旋轉、滾輪縮放，用來檢查補件和斷口有沒有對齊。底部按鈕一樣可以切換 **Show damage / Restore**。
+Open `https://localhost:5173/?debug=1`. This is a plain three.js scene: the scan model is grey and the restored pieces are beige. Drag to rotate and scroll to zoom to check that the pieces line up with the fracture. The **Show damage / Restore** button works here too.
 
-## 怎麼用手機測
+## Testing on a phone
 
-1. 電腦和手機連同一個 Wi-Fi。
-2. 用 `--host` 啟動，讓區網連得到：
+1. Put the computer and phone on the same Wi-Fi.
+2. Start the dev server with `--host` so it is reachable on the local network:
 
    ```bash
    npm run dev -- --host
    ```
 
-3. 手機開終端機印出來的 `Network:` 網址，例如 `https://192.168.x.x:5173/`。
-4. 憑證警告選「繼續」，允許相機權限。
-5. 對準下面任何一種：
-   - 電腦螢幕上全螢幕打開的 `public/stele-target.png`（螢幕亮度調高）
-   - 羅塞塔石碑的現場照片
-   - 大英博物館裡的實物
+3. On the phone, open the `Network:` URL the terminal prints, e.g. `https://192.168.x.x:5173/`.
+4. Accept the certificate warning and allow camera access.
+5. Point the phone at any of these:
+   - `public/stele-target.png` shown full screen on a computer (brightness up)
+   - a photo of the Rosetta Stone in the museum
+   - the real stone in the British Museum
 
-偵測到之後，補件會從斷裂線往上長出來。按 **Show damage** 收回去，按 **Restore** 再長一次。
+Once the target is detected, the pieces grow up from the fracture line. **Show damage** retracts them and **Restore** grows them again.
 
-**提高辨識率的小技巧：** 先從接近正面的角度偵測，抓到之後再慢慢移到側邊；盡量避開玻璃櫃的反光；讓石碑佔滿大半個畫面。
+**Tips for better detection:** start from a roughly frontal angle and move to the side once it locks on; avoid glare from the display case; let the stone fill most of the frame.
 
-## 專案結構
+## Project structure
 
 ```
-index.html            全螢幕 AR 容器、掃描提示、切換按鈕、來源標註
+index.html            full-screen AR container, scan overlay, toggle button, credit line
 src/
-  main.js             啟動 MindAR，每個 target 一個 anchor，掛上遮擋物和補件
-  occluder.js         掃描模型 → 只寫深度的隱形遮擋物（renderOrder 0）
-  missing.js          補件幾何：斷口輪廓 + 往上補到圓頂（renderOrder 1）
-  inscription.js      用 canvas 畫補件正面的推測銘文貼圖
-  reveal.js           復原動畫（由下往上長、金色前緣、刻字金光）
-  scan-ui.js          自製的掃描提示（取代 MindAR 內建 UI）
-  scene.js            AR 和 debug 共用的燈光與補件設定
-  debug.js            ?debug=1 的檢查場景
+  main.js             starts MindAR; one anchor per target, each gets the occluder and pieces
+  occluder.js         scan model as an invisible depth-only occluder (renderOrder 0)
+  missing.js          restored geometry: fracture outline extended up to the arch (renderOrder 1)
+  inscription.js      canvas-drawn texture with the reconstructed inscription
+  reveal.js           restore animation (bottom-up sweep, gold edge, glowing glyphs)
+  scan-ui.js          custom scanning overlay (replaces MindAR's built-in UI)
+  scene.js            lights and piece setup shared by AR and debug
+  debug.js            the ?debug=1 inspection scene
+  test-detect.js      dev-only detection test (see below)
 public/
-  stele.mind          MindAR target（4 張圖編譯而成，見下方）
-  stele-scan.glb      石碑掃描模型（正面寬 = 1、原點在正面中心、正面朝 +Z）
-  stele-target*.png   target 原圖
-tools/                產生 target 用的 Python 腳本
-stubs/canvas/         空的 node-canvas（見「備註」）
+  stele.mind          MindAR targets (compiled from 8 images, see below)
+  stele-scan.glb      scan model (front width = 1, origin at front centre, front faces +Z)
+  stele-target*.png   target source images
+tools/                Python scripts for producing targets
+stubs/canvas/         empty node-canvas stub (see Notes)
+.github/workflows/    GitHub Pages deployment
 ```
 
-## Target 與 stele.mind
+## Targets and stele.mind
 
-`stele.mind` 是用 [MindAR 線上 compiler](https://hiukim.github.io/mind-ar-js-doc/tools/compile) 依序編譯這 8 張圖（順序 = target index，和 `src/main.js` 的 `TARGETS` 一致）：
+`stele.mind` is compiled with the [MindAR online compiler](https://hiukim.github.io/mind-ar-js-doc/tools/compile) from these 8 images, in this order. The order is the target index and must match `TARGETS` in `src/main.js`.
 
-| # | 檔案 | 內容 |
+| # | File | Content |
 |---|---|---|
-| 0 | `stele-target.png` | 掃描模型的渲染圖（對著圖片 demo 用） |
-| 1 | `stele-target-front.png` | 博物館現場照片：正面 |
-| 2 | `stele-target-left.png` | 博物館現場照片：左前方 |
-| 3 | `stele-target-right.png` | 博物館現場照片：右前方 |
-| 4 | `stele-target-cool.png` | 博物館現場照片：2024 新展櫃，冷色光 |
-| 5 | `stele-target-left2.png` | 博物館現場照片：左前方，有反光 |
-| 6 | `stele-target-glass.png` | 博物館現場照片：隔著玻璃、倒影多 |
-| 7 | `stele-target-warm.png` | 博物館現場照片：暖色光、高對比（對齊誤差約 1%，較沒把握） |
+| 0 | `stele-target.png` | Render of the scan model (for demos with an image) |
+| 1 | `stele-target-front.png` | Museum photo: front |
+| 2 | `stele-target-left.png` | Museum photo: front left |
+| 3 | `stele-target-right.png` | Museum photo: front right |
+| 4 | `stele-target-cool.png` | Museum photo: 2024 display case, cool light |
+| 5 | `stele-target-left2.png` | Museum photo: front left, with glare |
+| 6 | `stele-target-glass.png` | Museum photo: through the glass, many reflections |
+| 7 | `stele-target-warm.png` | Museum photo: warm light, high contrast (alignment error ~1%, less certain) |
 
-所有圖都是 1078 × 1600，石碑剛好填滿畫面，座標和掃描模型一致，所以每個 anchor 都直接套用同一組模型，不用另外對位。現場照片是透視校正過的正面圖，石碑以外的地方塗白。多放幾種光線、角度、玻璃反光的照片，是為了讓沒見過的畫面（例如當天現場的光線）也比較有機會認出來；target 太多偵測會變慢，建議不要超過 8 張。
+Every image is 1078 × 1600, with the stone filling the frame in the same coordinates as the scan model. Each anchor therefore uses the same model with no per-target offset. The museum photos are perspective-corrected to a frontal view, with everything outside the stone painted white.
 
-### 新增一張現場照片
+The photos cover a range of lighting, angles and reflections so that unseen conditions, such as the lighting on the day you visit, have a better chance of being recognised. More targets make detection slower, so keep it to about 8.
+
+### Adding a museum photo
 
 ```bash
 python3 -m venv .venv && .venv/bin/pip install opencv-python-headless numpy
-.venv/bin/python tools/align_to_reference.py 照片.jpg public/stele-target-新.png \
+.venv/bin/python tools/align_to_reference.py photo.jpg public/stele-target-new.png \
   public/stele-target-front.png public/stele-target-left.png public/stele-target-right.png \
   public/stele-target-cool.png public/stele-target-glass.png
 ```
 
-腳本會和已經對齊好的現場照片做特徵比對，自動拉正。印出來的 `inliers` 要有幾百個以上才可靠。
+The script matches features against the already-aligned museum photos and rectifies the new photo automatically. The `inliers` it prints should be in the hundreds or more to be reliable. Then add the new image to `TARGETS` in `src/main.js` and recompile `stele.mind` with all images in order.
 
-### 偵測測試頁（開發用）
+`tools/rectify.py` is for bootstrapping the first alignment from four hand-picked corner points. You only need it when a real photo and the render look too different for automatic matching.
 
-`npm run dev` 後在電腦開 `https://localhost:5173/test.html`：把每張圖放進模擬的手機畫面，用三種大小跑 MindAR 的偵測和比對，列出配到哪個 target。測試用的照片放在 `test-images/`（不進 git，要自己準備）。然後把新圖加進 `src/main.js` 的 `TARGETS`，再用 compiler 照順序重新編譯 `stele.mind`。
+### Detection test page (dev only)
 
-`tools/rectify.py` 是第一次對齊用的（人工標四個角點）。實物照片和渲染圖外觀差太多、自動比對配不起來時才需要它。
+With `npm run dev` running, open `https://localhost:5173/test.html` on a computer. It places each image into a simulated phone frame at three sizes, runs MindAR detection and matching, and lists which targets it hits. Put test photos in `test-images/` (not committed; bring your own).
 
-## 素材來源與授權
+## Credits and licences
 
-| 素材 | 來源 | 授權 |
+| Asset | Source | Licence |
 |---|---|---|
-| `stele-scan.glb`、`stele-target.png`（掃描模型與其渲染圖） | "The Rosetta Stone" by The British Museum（[Sketchfab](https://sketchfab.com/3d-models/1e03509704a3490e99a173e53b93e282)） | [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/) |
-| `stele-target-front.png` | [Rosetta Stone.JPG](https://commons.wikimedia.org/wiki/File:Rosetta_Stone.JPG) by Hans Hillewaert，Wikimedia Commons；經透視校正、裁切 | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/) |
-| `stele-target-left.png` | [June 2008 Rosetta stone.jpg](https://commons.wikimedia.org/wiki/File:June_2008_Rosetta_stone.jpg) by Syced，Wikimedia Commons；經透視校正、裁切 | [CC0](https://creativecommons.org/publicdomain/zero/1.0/) |
-| `stele-target-right.png` | [Pierre de Rosette - British Museum 02.jpg](https://commons.wikimedia.org/wiki/File:Pierre_de_Rosette_-_British_Museum_02.jpg) by Giogo，Wikimedia Commons；經透視校正、裁切 | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/) |
-| `stele-target-cool.png` | [British Museum 2024-10-03l.jpg](https://commons.wikimedia.org/wiki/File:British_Museum_2024-10-03l.jpg) by Djehouty，Wikimedia Commons；經透視校正、裁切 | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/) |
-| `stele-target-left2.png` | [PXL 20231219 110740689 British Museum Egyptian Artefacts 20 Rosetta Stone.jpg](https://commons.wikimedia.org/wiki/File:PXL_20231219_110740689_British_Museum_Egyptian_Artefacts_20_Rosetta_Stone.jpg) by Sourabh.biswas003，Wikimedia Commons；經透視校正、裁切 | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/) |
-| `stele-target-glass.png` | [Collections of the British Museum 10.jpg](https://commons.wikimedia.org/wiki/File:Collections_of_the_British_Museum_10.jpg) by Interfase，Wikimedia Commons；經透視校正、裁切 | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/) |
-| `stele-target-warm.png` | [Rosetta Stone hanging.jpg](https://commons.wikimedia.org/wiki/File:Rosetta_Stone_hanging.jpg) by DestinationFearFan，Wikimedia Commons；經透視校正、裁切 | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/) |
-| `stele.mind` | 由上面 8 張圖編譯，內含縮小的灰階圖 | 沿用各來源圖的授權 |
+| `stele-scan.glb`, `stele-target.png` (scan model and its render) | "The Rosetta Stone" by The British Museum ([Sketchfab](https://sketchfab.com/3d-models/1e03509704a3490e99a173e53b93e282)) | [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/) |
+| `stele-target-front.png` | [Rosetta Stone.JPG](https://commons.wikimedia.org/wiki/File:Rosetta_Stone.JPG) by Hans Hillewaert, Wikimedia Commons; perspective-corrected and cropped | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/) |
+| `stele-target-left.png` | [June 2008 Rosetta stone.jpg](https://commons.wikimedia.org/wiki/File:June_2008_Rosetta_stone.jpg) by Syced, Wikimedia Commons; perspective-corrected and cropped | [CC0](https://creativecommons.org/publicdomain/zero/1.0/) |
+| `stele-target-right.png` | [Pierre de Rosette - British Museum 02.jpg](https://commons.wikimedia.org/wiki/File:Pierre_de_Rosette_-_British_Museum_02.jpg) by Giogo, Wikimedia Commons; perspective-corrected and cropped | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/) |
+| `stele-target-cool.png` | [British Museum 2024-10-03l.jpg](https://commons.wikimedia.org/wiki/File:British_Museum_2024-10-03l.jpg) by Djehouty, Wikimedia Commons; perspective-corrected and cropped | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/) |
+| `stele-target-left2.png` | [PXL 20231219 110740689 British Museum Egyptian Artefacts 20 Rosetta Stone.jpg](https://commons.wikimedia.org/wiki/File:PXL_20231219_110740689_British_Museum_Egyptian_Artefacts_20_Rosetta_Stone.jpg) by Sourabh.biswas003, Wikimedia Commons; perspective-corrected and cropped | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/) |
+| `stele-target-glass.png` | [Collections of the British Museum 10.jpg](https://commons.wikimedia.org/wiki/File:Collections_of_the_British_Museum_10.jpg) by Interfase, Wikimedia Commons; perspective-corrected and cropped | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/) |
+| `stele-target-warm.png` | [Rosetta Stone hanging.jpg](https://commons.wikimedia.org/wiki/File:Rosetta_Stone_hanging.jpg) by DestinationFearFan, Wikimedia Commons; perspective-corrected and cropped | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/) |
+| `stele.mind` | Compiled from the 8 images above; contains downscaled greyscale copies | Inherits the licences of its source images |
 
-- 校正後的 CC BY-SA 照片依原授權以 CC BY-SA 4.0 釋出。
-- 掃描模型是 **非商業（NC）** 授權，這個專案不能用於商業用途。
-- 補件的形狀和銘文是推測：版面參考 Parkinson (1999) 的完整石碑復原研究（上方圓頂、有翼日輪、象形文字 → 世俗體 → 希臘文），字形是程式隨機產生的示意，不是真正的文字。
+- The perspective-corrected CC BY-SA photos are released under CC BY-SA 4.0, as their licence requires.
+- The scan model is licensed **non-commercial (NC)**, so this project cannot be used commercially.
+- The shape and inscription of the restored pieces are conjectural. The layout follows Parkinson's (1999) reconstruction of the complete stele (rounded top with a winged sun disc, then hieroglyphic, Demotic and Greek sections). The glyphs are randomly generated placeholders, not real text.
 
-## 備註
+## Notes
 
-- **three 固定在 0.161.0：** mind-ar 1.2.5 會從 three 匯入 `sRGBEncoding`，three r162 之後拿掉了這個 export。
-- **`stubs/canvas`：** mind-ar 的 dependency 裡有 node-canvas，但只有 Node 端的 target compiler 會用到它。它在新版 Node 上常常編譯失敗，所以用 `package.json` 的 `overrides` 換成空的 stub，瀏覽器端不受影響。
+- **three is pinned to 0.161.0.** mind-ar 1.2.5 imports `sRGBEncoding` from three, and that export was removed in r162.
+- **`stubs/canvas`:** mind-ar depends on node-canvas, but only its Node-side target compiler uses it, and it often fails to build on recent Node versions. `overrides` in `package.json` replaces it with an empty stub. The browser build is unaffected.
