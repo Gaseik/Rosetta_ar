@@ -68,7 +68,7 @@ stubs/canvas/         空的 node-canvas（見「備註」）
 
 ## Target 與 stele.mind
 
-`stele.mind` 是用 [MindAR 線上 compiler](https://hiukim.github.io/mind-ar-js-doc/tools/compile) 依序編譯這 4 張圖（順序 = target index，和 `src/main.js` 的 `TARGETS` 一致）：
+`stele.mind` 是用 [MindAR 線上 compiler](https://hiukim.github.io/mind-ar-js-doc/tools/compile) 依序編譯這 8 張圖（順序 = target index，和 `src/main.js` 的 `TARGETS` 一致）：
 
 | # | 檔案 | 內容 |
 |---|---|---|
@@ -76,18 +76,27 @@ stubs/canvas/         空的 node-canvas（見「備註」）
 | 1 | `stele-target-front.png` | 博物館現場照片：正面 |
 | 2 | `stele-target-left.png` | 博物館現場照片：左前方 |
 | 3 | `stele-target-right.png` | 博物館現場照片：右前方 |
+| 4 | `stele-target-cool.png` | 博物館現場照片：2024 新展櫃，冷色光 |
+| 5 | `stele-target-left2.png` | 博物館現場照片：左前方，有反光 |
+| 6 | `stele-target-glass.png` | 博物館現場照片：隔著玻璃、倒影多 |
+| 7 | `stele-target-warm.png` | 博物館現場照片：暖色光、高對比（對齊誤差約 1%，較沒把握） |
 
-4 張圖都是 1078 × 1600，石碑剛好填滿畫面，座標和掃描模型一致，所以每個 anchor 都直接套用同一組模型，不用另外對位。現場照片是透視校正過的正面圖，石碑以外的地方塗白。
+所有圖都是 1078 × 1600，石碑剛好填滿畫面，座標和掃描模型一致，所以每個 anchor 都直接套用同一組模型，不用另外對位。現場照片是透視校正過的正面圖，石碑以外的地方塗白。多放幾種光線、角度、玻璃反光的照片，是為了讓沒見過的畫面（例如當天現場的光線）也比較有機會認出來；target 太多偵測會變慢，建議不要超過 8 張。
 
 ### 新增一張現場照片
 
 ```bash
 python3 -m venv .venv && .venv/bin/pip install opencv-python-headless numpy
 .venv/bin/python tools/align_to_reference.py 照片.jpg public/stele-target-新.png \
-  public/stele-target-front.png public/stele-target-left.png public/stele-target-right.png
+  public/stele-target-front.png public/stele-target-left.png public/stele-target-right.png \
+  public/stele-target-cool.png public/stele-target-glass.png
 ```
 
-腳本會和已經對齊好的現場照片做特徵比對，自動拉正。印出來的 `inliers` 要有幾百個以上才可靠。然後把新圖加進 `src/main.js` 的 `TARGETS`，再用 compiler 照順序重新編譯 `stele.mind`。
+腳本會和已經對齊好的現場照片做特徵比對，自動拉正。印出來的 `inliers` 要有幾百個以上才可靠。
+
+### 偵測測試頁（開發用）
+
+`npm run dev` 後在電腦開 `https://localhost:5173/test.html`：把每張圖放進模擬的手機畫面，用三種大小跑 MindAR 的偵測和比對，列出配到哪個 target。測試用的照片放在 `test-images/`（不進 git，要自己準備）。然後把新圖加進 `src/main.js` 的 `TARGETS`，再用 compiler 照順序重新編譯 `stele.mind`。
 
 `tools/rectify.py` 是第一次對齊用的（人工標四個角點）。實物照片和渲染圖外觀差太多、自動比對配不起來時才需要它。
 
@@ -99,7 +108,11 @@ python3 -m venv .venv && .venv/bin/pip install opencv-python-headless numpy
 | `stele-target-front.png` | [Rosetta Stone.JPG](https://commons.wikimedia.org/wiki/File:Rosetta_Stone.JPG) by Hans Hillewaert，Wikimedia Commons；經透視校正、裁切 | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/) |
 | `stele-target-left.png` | [June 2008 Rosetta stone.jpg](https://commons.wikimedia.org/wiki/File:June_2008_Rosetta_stone.jpg) by Syced，Wikimedia Commons；經透視校正、裁切 | [CC0](https://creativecommons.org/publicdomain/zero/1.0/) |
 | `stele-target-right.png` | [Pierre de Rosette - British Museum 02.jpg](https://commons.wikimedia.org/wiki/File:Pierre_de_Rosette_-_British_Museum_02.jpg) by Giogo，Wikimedia Commons；經透視校正、裁切 | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/) |
-| `stele.mind` | 由上面 4 張圖編譯，內含縮小的灰階圖 | 沿用各來源圖的授權 |
+| `stele-target-cool.png` | [British Museum 2024-10-03l.jpg](https://commons.wikimedia.org/wiki/File:British_Museum_2024-10-03l.jpg) by Djehouty，Wikimedia Commons；經透視校正、裁切 | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/) |
+| `stele-target-left2.png` | [PXL 20231219 110740689 British Museum Egyptian Artefacts 20 Rosetta Stone.jpg](https://commons.wikimedia.org/wiki/File:PXL_20231219_110740689_British_Museum_Egyptian_Artefacts_20_Rosetta_Stone.jpg) by Sourabh.biswas003，Wikimedia Commons；經透視校正、裁切 | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/) |
+| `stele-target-glass.png` | [Collections of the British Museum 10.jpg](https://commons.wikimedia.org/wiki/File:Collections_of_the_British_Museum_10.jpg) by Interfase，Wikimedia Commons；經透視校正、裁切 | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/) |
+| `stele-target-warm.png` | [Rosetta Stone hanging.jpg](https://commons.wikimedia.org/wiki/File:Rosetta_Stone_hanging.jpg) by DestinationFearFan，Wikimedia Commons；經透視校正、裁切 | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/) |
+| `stele.mind` | 由上面 8 張圖編譯，內含縮小的灰階圖 | 沿用各來源圖的授權 |
 
 - 校正後的 CC BY-SA 照片依原授權以 CC BY-SA 4.0 釋出。
 - 掃描模型是 **非商業（NC）** 授權，這個專案不能用於商業用途。

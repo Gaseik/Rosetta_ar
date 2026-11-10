@@ -9,6 +9,11 @@ const TARGETS = [
   'stele-target-front.png', // 1：正面
   'stele-target-left.png',  // 2：從左前方拍
   'stele-target-right.png', // 3：從右前方拍
+  // 4–7：再補不同光線 / 年代 / 玻璃反光的現場照片，提高沒見過的畫面也能認出來的機率
+  'stele-target-cool.png',  // 4：2024 新展櫃，冷色光
+  'stele-target-left2.png', // 5：2023，左前方，有反光
+  'stele-target-glass.png', // 6：隔著玻璃、倒影多，右前方
+  'stele-target-warm.png',  // 7：暖色光、高對比（特徵點少，對齊誤差約 1%，較沒把握）
 ];
 
 const container = document.querySelector('#ar-container');
