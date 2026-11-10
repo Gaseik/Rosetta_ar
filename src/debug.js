@@ -24,7 +24,7 @@ export async function startDebug(container, button) {
   controls.update();
 
   // 掃描模型用灰色實體材質顯示（AR 模式下它是看不見的遮擋物）
-  const gltf = await new GLTFLoader().loadAsync('/stele-scan.glb');
+  const gltf = await new GLTFLoader().loadAsync(`${import.meta.env.BASE_URL}stele-scan.glb`);
   const grey = new THREE.MeshStandardMaterial({ color: 0x9a9a9a, roughness: 0.85 });
   gltf.scene.traverse((obj) => {
     if (obj.isMesh) obj.material = grey;

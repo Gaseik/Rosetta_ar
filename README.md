@@ -1,5 +1,16 @@
 # Rosetta AR
 
+## 試玩
+
+1. 手機打開 **https://gaseik.github.io/Rosetta_ar/** ，允許相機權限。
+2. 在電腦螢幕上全螢幕打開這張圖（螢幕亮度調高）：
+   **https://gaseik.github.io/Rosetta_ar/stele-target.png**
+3. 手機對準螢幕上的石碑，缺掉的部分就會從斷口長回來。
+
+不開相機也能看：**https://gaseik.github.io/Rosetta_ar/?debug=1** （可以拖曳旋轉）。
+
+在大英博物館現場也可以直接對準實物試試：程式裡有 7 張現場照片做的 target，但現場的光線和反光每天不同，不保證每次都抓得到。
+
 手機對準羅塞塔石碑（照片或大英博物館的實物），用 AR 把石碑缺掉的部分補回來：補件會從斷口往上長出來，一路補到推測的完整高度（約 149 cm），上面刻著推測的銘文和圓頂的有翼日輪。
 
 - Vite + 純 JavaScript

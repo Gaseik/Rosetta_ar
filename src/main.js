@@ -44,7 +44,7 @@ async function startAR() {
 
     const mindar = new MindARThree({
       container,
-      imageTargetSrc: '/stele.mind',
+      imageTargetSrc: `${import.meta.env.BASE_URL}stele.mind`,
       maxTrack: 1,
       // 防抖：MindAR 預設 (0.001 / 1000) 反應很快但會抖，調低讓姿態更平滑（代價是移動時稍微跟慢一點）
       filterMinCF: 0.0001,
